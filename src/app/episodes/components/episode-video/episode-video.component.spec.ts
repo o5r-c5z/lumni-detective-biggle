@@ -23,11 +23,6 @@ const episode: Episode = {
   questions: [],
 };
 
-/** Lets the pending `setTimeout` callbacks run. */
-function wait(milliseconds = 0): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
-}
-
 @Component({ template: '<p>Quiz</p>' })
 class QuizStubComponent {}
 
@@ -94,7 +89,10 @@ describe('EpisodeVideoComponent', () => {
    */
   async function showVideo(query = ''): Promise<HTMLElement> {
     await harness.navigateByUrl(`/3/video${query}`).catch((error) => {
-      if (!String(error).includes('NG0100')) {
+      if (
+        !/videoType=(clue|resolution)/.test(query) ||
+        !String(error).includes('NG0100')
+      ) {
         throw error;
       }
     });
@@ -111,9 +109,11 @@ describe('EpisodeVideoComponent', () => {
 
   /** Simulates an event of the last player created. */
   function emit(event: string): void {
-    const handler = [...playerOn.calls.allArgs()]
-      .reverse()
-      .find((args) => args[0] === event)?.[1];
+    const lastPlayer = playerOn.calls.mostRecent()?.object;
+    const handler = playerOn.calls
+      .all()
+      .find((call) => call.object === lastPlayer && call.args[0] === event)
+      ?.args[1];
     expect(handler).withContext(`"${event}" handler`).toBeDefined();
     handler();
     harness.detectChanges();
@@ -123,10 +123,10 @@ describe('EpisodeVideoComponent', () => {
     return host.querySelector('#episode-video__player-container')!;
   }
 
-  function links(host: HTMLElement): string[][] {
+  function links(host: HTMLElement): (string | null)[][] {
     return Array.from(host.querySelectorAll('a'), (link) => [
       link.textContent?.trim() ?? '',
-      link.getAttribute('href') ?? '',
+      link.getAttribute('href'),
     ]);
   }
 
@@ -238,6 +238,21 @@ describe('EpisodeVideoComponent', () => {
       episodeService.setEpisode(episode);
 
       expect(requestedVideos()).toEqual(['https://vimeo.com/100']);
+    });
+
+    it('then creates the player twice on each query change', async () => {
+      await showVideo();
+      episodeService.setEpisode(episode);
+
+      // Each episode emission adds a subscription to the query parameters.
+      await harness.navigateByUrl('/3/video?videoType=pedagogicalConcept');
+
+      expect(requestedVideos()).toEqual([
+        'https://vimeo.com/100',
+        'https://vimeo.com/200',
+        'https://vimeo.com/200',
+      ]);
+      expect(playerDestroy).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -364,8 +379,12 @@ describe('EpisodeVideoComponent', () => {
 
         beforeEach(async () => {
           host = await showVideo(query);
+          // The end of the video schedules the focus with setTimeout.
+          jasmine.clock().install();
           emit('ended');
         });
+
+        afterEach(() => jasmine.clock().uninstall());
 
         it('stays on the screen and destroys the player', () => {
           expect(currentUrl()).toBe(`/3/video${query}`);
@@ -386,7 +405,7 @@ describe('EpisodeVideoComponent', () => {
           );
           expect(links(host)).toEqual([
             ['Lancer le quiz !', '/3/quiz'],
-            ['Revoir toute la vidéo', ''],
+            ['Revoir toute la vidéo', null],
             [
               'Revoir le cours d’Owliver',
               '/3/video?videoType=pedagogicalConcept',
@@ -403,12 +422,14 @@ describe('EpisodeVideoComponent', () => {
           expect(document.activeElement).not.toBe(replay);
         });
 
-        it('focuses the link to the quiz after 100 ms', async () => {
-          await wait(100);
+        it('focuses the link to the quiz after 100 ms', () => {
+          const quizLink = linkNamed(host, 'Lancer le quiz !');
 
-          expect(document.activeElement).toBe(
-            linkNamed(host, 'Lancer le quiz !'),
-          );
+          jasmine.clock().tick(99);
+          expect(document.activeElement).not.toBe(quizLink);
+
+          jasmine.clock().tick(1);
+          expect(document.activeElement).toBe(quizLink);
         });
 
         it('displays the office as a background', () => {
@@ -433,6 +454,8 @@ describe('EpisodeVideoComponent', () => {
 
           expect(requestedVideos().length).toBe(2);
           expect(requestedVideos()[1]).toBe(requestedVideos()[0]);
+          // Both initializePlayer() and restartVideo() play the video and
+          // pause the music.
           expect(playerPlay).toHaveBeenCalledTimes(2);
           expect(audioService.pause).toHaveBeenCalledTimes(2);
           expect(announcementService.announce).toHaveBeenCalledOnceWith(
