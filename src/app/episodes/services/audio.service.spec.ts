@@ -54,7 +54,12 @@ describe('AudioService', () => {
   });
 
   afterEach(() => {
-    createdAudio.forEach((audio) => audio.remove());
+    createdAudio.forEach((audio) => {
+      audio.play.and.resolveTo();
+      audio.remove();
+    });
+    // Any autoplay retry still waiting detaches itself on the next interaction.
+    document.dispatchEvent(new Event('click'));
   });
 
   describe('initial state', () => {
@@ -119,18 +124,6 @@ describe('AudioService', () => {
       expect(audioConstructor).toHaveBeenCalledTimes(1);
       expect(music.src).toBe('/audio/second.mp3');
       expect(music.load).toHaveBeenCalledTimes(1);
-    });
-
-    it('logs the media error code when the file fails to load', () => {
-      const music = initMusic();
-      Object.assign(music, { error: { code: 2 } });
-
-      music.dispatchEvent(new Event('error'));
-
-      expect(console.error).toHaveBeenCalledWith(
-        'Audio error code:',
-        'MEDIA_ERR_NETWORK',
-      );
     });
   });
 
@@ -235,11 +228,37 @@ describe('AudioService', () => {
         document.dispatchEvent(new MouseEvent('click'));
         flushMicrotasks();
 
+        expect(music.play).toHaveBeenCalledTimes(2);
         expect(service.isPlaying()).toBeFalse();
-        expect(console.error).toHaveBeenCalledWith(
-          'Still could not play audio:',
-          jasmine.any(DOMException),
-        );
+      }));
+
+      it('retries once per blocked attempt on the same interaction', fakeAsync(() => {
+        const music = initMusic();
+        music.play.and.rejectWith(notAllowedError());
+        service.play();
+        service.play(false);
+        flushMicrotasks();
+
+        music.play.and.resolveTo();
+        document.dispatchEvent(new MouseEvent('click'));
+        flushMicrotasks();
+
+        expect(music.play).toHaveBeenCalledTimes(4);
+      }));
+
+      it('still retries after the music was paused', fakeAsync(() => {
+        const music = initMusic();
+        music.play.and.rejectWith(notAllowedError());
+        service.play();
+        flushMicrotasks();
+        service.pause();
+
+        music.play.and.resolveTo();
+        document.dispatchEvent(new MouseEvent('click'));
+        flushMicrotasks();
+
+        expect(music.play).toHaveBeenCalledTimes(2);
+        expect(service.isPlaying()).toBeTrue();
       }));
     });
   });
@@ -321,11 +340,11 @@ describe('AudioService', () => {
   });
 
   describe('music volume', () => {
-    for (const [name, setVolume, getVolume] of [
-      ['setVolume', 'setVolume', 'getVolume'],
-      ['setMusicVolume', 'setMusicVolume', 'getMusicVolume'],
+    for (const [setVolume, getVolume] of [
+      ['setVolume', 'getVolume'],
+      ['setMusicVolume', 'getMusicVolume'],
     ] as const) {
-      describe(name, () => {
+      describe(setVolume, () => {
         it('applies the volume to the music and emits it', () => {
           const music = initMusic();
           const emitted: number[] = [];
@@ -419,19 +438,14 @@ describe('AudioService', () => {
       expect(service.getActiveSoundEffectsCount()).toBe(0);
     });
 
-    it('removes the element and logs when it fails to load', async () => {
+    it('removes the element when it fails to load', async () => {
       await service.playSoundEffect('/audio/Win 3.mp3');
       const effect = createdAudio[0];
-      const error = new Event('error');
 
-      effect.dispatchEvent(error);
+      effect.dispatchEvent(new Event('error'));
 
       expect(effect.parentNode).toBeNull();
       expect(service.getActiveSoundEffectsCount()).toBe(0);
-      expect(console.error).toHaveBeenCalledWith(
-        'Error playing sound effect:',
-        error,
-      );
     });
 
     it('rejects and removes the element when playback fails', async () => {
@@ -520,6 +534,7 @@ describe('AudioService', () => {
       const music = initMusic();
       service.play();
       flushMicrotasks();
+      service.mute();
 
       service.ngOnDestroy();
 

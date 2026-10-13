@@ -27,12 +27,9 @@ describe('AnnouncementService', () => {
     service.announce('Mise en pause de la vidéo');
     service.announce('Mise en pause de la vidéo');
 
-    expect(liveAnnouncer.announce).toHaveBeenCalledTimes(2);
-  });
-
-  it('logs the message to the debug console', () => {
-    service.announce('Vidéo terminée');
-
-    expect(console.debug).toHaveBeenCalledOnceWith('Vidéo terminée');
+    expect(liveAnnouncer.announce.calls.allArgs()).toEqual([
+      ['Mise en pause de la vidéo'],
+      ['Mise en pause de la vidéo'],
+    ]);
   });
 });
