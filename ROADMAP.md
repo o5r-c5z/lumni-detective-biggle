@@ -5,12 +5,12 @@ régressions, avant d'en dériver Don Quijote (`o5r-c5z/lumni-don-quijote`).
 
 ## 1. Infrastructure de tests
 
-- [ ] Script npm `test:ci` : `ng test --watch=false --browsers=ChromeHeadless`
-- [ ] Script npm `typecheck` : `tsc --noEmit`
-- [ ] Premier spec trivial pour que `ng test` ne plante plus (TS18003)
-- [ ] `AGENTS.md` : commandes, convention `*.spec.ts`, TDD, règles
+- [x] Script npm `test:ci` : `ng test --watch=false --browsers=ChromeHeadless`
+- [x] Script npm `typecheck` : `tsc --noEmit`
+- [x] Premier spec trivial pour que `ng test` ne plante plus (TS18003)
+- [x] `AGENTS.md` : commandes, convention `*.spec.ts`, TDD, règles
       d'accessibilité reprises de `.cursor/rules/`
-- [ ] CI GitHub Actions : tests + vérification des types sur chaque PR
+- [x] CI GitHub Actions : tests + vérification des types sur chaque PR
 
 ## 2. Tests de caractérisation des services
 
