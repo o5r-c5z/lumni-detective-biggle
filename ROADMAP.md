@@ -15,9 +15,9 @@ régressions, avant d'en dériver Don Quijote (`o5r-c5z/lumni-don-quijote`).
 
 ## 2. Tests de caractérisation des services
 
-- [ ] `EpisodeService` : épisode courant, étapes du quiz, reset
-- [ ] `AudioService` : musique de fond, effets sonores, mute, volume
-- [ ] `AnnouncementService`
+- [x] `EpisodeService` : épisode courant, étapes du quiz, reset
+- [x] `AudioService` : musique de fond, effets sonores, mute, volume
+- [x] `AnnouncementService`
 
 ## 3. Tests de caractérisation des composants
 
