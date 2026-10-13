@@ -9,8 +9,9 @@ régressions, avant d'en dériver Don Quijote (`o5r-c5z/lumni-don-quijote`).
 - [x] Script npm `typecheck` : `tsc --noEmit` sur `tsconfig.app.json` puis
       `tsconfig.spec.json`
 - [x] Premier spec trivial pour que `ng test` ne plante plus (TS18003)
-- [x] `AGENTS.md` : commandes, convention `*.spec.ts`, TDD, règles
-      d'accessibilité reprises de `.cursor/rules/`
+- [x] `AGENTS.md` : commandes, convention `*.spec.ts`, TDD, renvoi vers la
+      spec d'accessibilité du client, déplacée de `.cursor/rules/` vers
+      `ACCESSIBILITY.md`
 - [x] CI GitHub Actions : tests + vérification des types sur chaque PR
 
 ## 2. Tests de caractérisation des services
@@ -30,12 +31,6 @@ régressions, avant d'en dériver Don Quijote (`o5r-c5z/lumni-don-quijote`).
 - [ ] `NotFoundComponent`
 - [ ] Routes : `:episodeNumber`, enfants, `**`
 
-## 4. Accessibilité
-
-- [ ] Quiz : retirer `aria-required` du `fieldset` et l'`aria-checked` statique
-      des boutons radio natifs (règles d'`AGENTS.md`), une fois le quiz
-      couvert par les tests de caractérisation
-
-## 5. Documentation
+## 4. Documentation
 
 - [ ] README : lancer les tests, vérifier les types, développer en TDD

@@ -1,0 +1,31 @@
+# Accessibility spec
+
+Client requirement. Kept as delivered: do not edit it without the client's
+agreement. Moved from `.cursor/rules/`, one section per former rule file.
+
+## HTML
+
+Form
+- Focus should be coherent for the user
+- Only interactive elements should take the focus
+- Each input must be linked to its corresponding label
+- Each input must be linked to its error message via the aria-describedby attribute
+- Each part of a form must be grouped in a fieldset with a legend
+- If there is a required input in the fieldset, the fieldset should have its aria-required property set to true
+- The aria-checked attribute of the checkboxes or radio buttons must be set
+
+Stepper
+- Each fieldset within a form should indicate the step (example: "Question 1 out of 3")
+
+Screen readers
+- The app must be compatible with tools such as NVDA, VoiceOver and Talkback
+- Decorative elements should be ignored by screen readers
+- Useful images should have an alt property
+
+## SCSS
+
+- Interactive elements should have an outline with a 3:1 contrast at least
+
+## TypeScript
+
+- When a part of a form is hidden and another part is shown, the focus should be put on the first element of the newly shown part

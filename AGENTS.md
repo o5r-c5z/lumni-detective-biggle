@@ -43,42 +43,7 @@ down the current behavior, then change it.
 
 ## Accessibility
 
-The application must stay usable with a keyboard and a screen reader. Rules
-taken from `.cursor/rules/`.
-
-### HTML
-
-Forms:
-
-- Focus order makes sense to the user.
-- Only interactive elements take focus.
-- Every input is linked to its label.
-- Every input is linked to its error message through `aria-describedby`.
-- Every part of a form is grouped in a `fieldset` with a `legend`.
-- Required inputs carry the native `required` attribute. `aria-required` is
-  only for roles that support it (for example a custom control or a
-  `radiogroup`), never on a plain `fieldset`.
-- Native checkboxes and radio buttons expose their checked state themselves:
-  do not set `aria-checked` on them. Only a custom control (`role="checkbox"`
-  or `role="radio"`) carries `aria-checked`, bound to its real state.
-
-Steps:
-
-- Every `fieldset` of a multi-step form states the step (for example
-  "Question 1 sur 3").
-
-Screen readers:
-
-- The application works with NVDA, VoiceOver and TalkBack.
-- Decorative elements are hidden from screen readers.
-- Meaningful images have an `alt` attribute.
-
-### SCSS
-
-- Interactive elements have a focus outline with a contrast ratio of at
-  least 3:1.
-
-### TypeScript
-
-- When one part of a form is hidden and another is shown, focus moves to the
-  first element of the newly shown part.
+The application must stay usable with a keyboard and a screen reader. The
+client's accessibility spec is in `ACCESSIBILITY.md`: follow it as written.
+It is a client requirement, so never edit it; raise any disagreement with the
+user instead.
