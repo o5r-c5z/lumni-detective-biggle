@@ -28,7 +28,7 @@ d'écran. Projet commandé par Lumni, produit par Big Company.
 - `src/styles.scss` — styles globaux, variables CSS (couleurs, ratio d'écran 16/9), classes `.btn`, `.screen`.
 - `src/styles/_reset.scss`, `_a11y.scss`, `_figma.scss` — mixins et fonctions (reset de `fieldset`, contour de focus, conversion des valeurs Figma en `rem`).
 - `public/` — fichiers statiques copiés tels quels : `audio/` (musique et effets `.mp3`), `images/landscape/` et `images/portrait/` (décors), `images/` (personnages Biggle et Owliver), `favicon.ico`.
-- `.cursor/rules/` — règles d'accessibilité (HTML, SCSS, TS) pour l'assistant Cursor.
+- `ACCESSIBILITY.md` — exigences d'accessibilité du client (HTML, SCSS, TS).
 - `angular.json`, `tsconfig*.json`, `.editorconfig`, `.vscode/` — configuration du projet et de l'éditeur.
 - `uploads/` — **non versionné** (`.gitignore`) ; contient les données des épisodes (`episodes/<n>/episode.json`), servies uniquement en configuration de développement.
 

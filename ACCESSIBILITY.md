@@ -1,7 +1,10 @@
----
-description: Enforce accesibility in the html files
-globs: *.html
----
+# Accessibility spec
+
+Client requirement. Kept as delivered: do not edit it without the client's
+agreement. Moved from `.cursor/rules/`, one section per former rule file.
+
+## HTML
+
 Form
 - Focus should be coherent for the user
 - Only interactive elements should take the focus
@@ -18,3 +21,11 @@ Screen readers
 - The app must be compatible with tools such as NVDA, VoiceOver and Talkback
 - Decorative elements should be ignored by screen readers
 - Useful images should have an alt property
+
+## SCSS
+
+- Interactive elements should have an outline with a 3:1 contrast at least
+
+## TypeScript
+
+- When a part of a form is hidden and another part is shown, the focus should be put on the first element of the newly shown part
