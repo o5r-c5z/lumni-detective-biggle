@@ -127,7 +127,7 @@ describe('EpisodeComponent', () => {
       expect(audioService.play.calls.allArgs()).toEqual([[]]);
     });
 
-    it('resumes it without retry on each screen but the video', async () => {
+    it('resumes it without rewinding on each screen but the video', async () => {
       await navigate('/3');
       audioService.play.calls.reset();
 
@@ -209,6 +209,28 @@ describe('EpisodeComponent', () => {
       expect(episodeService.getEpisode()?.title).toBe(
         'Episode from uploads/episodes/4/episode.json',
       );
+    });
+
+    it('shares the response that arrives last, even for a previous episode', async () => {
+      const resolvers = new Map<string, (response: Response) => void>();
+      fetchSpy.and.callFake(
+        (input) =>
+          new Promise((resolve) => resolvers.set(String(input), resolve)),
+      );
+      await navigate('/3');
+      await navigate('/4');
+
+      resolvers.get('uploads/episodes/4/episode.json')!(
+        respondWith(createEpisode('Episode 4')),
+      );
+      await nextMacrotask();
+      resolvers.get('uploads/episodes/3/episode.json')!(
+        respondWith(createEpisode('Episode 3')),
+      );
+      await nextMacrotask();
+
+      expect(TestBed.inject(Router).url).toBe('/4');
+      expect(episodeService.getEpisode()?.title).toBe('Episode 3');
     });
 
     it('fetches a NaN episode for a non numeric episode number', async () => {

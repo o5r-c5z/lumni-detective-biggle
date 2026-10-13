@@ -27,8 +27,10 @@ class ScreenStubComponent {
 function withStubs(config: Routes): Routes {
   return config.map((route) => ({
     ...route,
-    component: ScreenStubComponent,
-    data: { ...route.data, component: route.component?.name },
+    ...(route.component && {
+      component: ScreenStubComponent,
+      data: { ...route.data, component: route.component.name },
+    }),
     children: route.children && withStubs(route.children),
   }));
 }

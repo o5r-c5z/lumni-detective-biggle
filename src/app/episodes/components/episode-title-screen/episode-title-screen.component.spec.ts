@@ -9,9 +9,10 @@ function createEpisode(title: string): Episode {
   const video = { url: 'https://vimeo.com/1', title: 'Video' };
   return {
     title,
+    // Data URLs, so that displaying the background makes no request.
     titleBackground: {
-      landscape: `uploads/episodes/3/${title}-landscape.png`,
-      portrait: `uploads/episodes/3/${title}-portrait.png`,
+      landscape: `data:,${title} landscape`,
+      portrait: `data:,${title} portrait`,
     },
     investigation: video,
     pedagogicalConcept: video,
@@ -44,6 +45,9 @@ describe('EpisodeTitleScreenComponent', () => {
     episodeService = TestBed.inject(EpisodeService);
     harness = await RouterTestingHarness.create();
   });
+
+  // Lets the focus timer of the last displayed episode run before teardown.
+  afterEach(() => nextMacrotask());
 
   async function showTitleScreen(url = '/3'): Promise<HTMLElement> {
     await harness.navigateByUrl(url, EpisodeTitleScreenComponent);
@@ -114,10 +118,10 @@ describe('EpisodeTitleScreenComponent', () => {
 
       expect(host.classList).toContain('screen');
       expect(host.style.getPropertyValue('--screen-background-landscape')).toBe(
-        'url("uploads/episodes/3/La disparition-landscape.png")',
+        'url("data:,La disparition landscape")',
       );
       expect(host.style.getPropertyValue('--screen-background-portrait')).toBe(
-        'url("uploads/episodes/3/La disparition-portrait.png")',
+        'url("data:,La disparition portrait")',
       );
     });
 

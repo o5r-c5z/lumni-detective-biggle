@@ -235,7 +235,7 @@ describe('AudioControlComponent', () => {
     describe('while a form field has the focus', () => {
       let field: HTMLElement;
 
-      afterEach(() => field.remove());
+      afterEach(() => field?.remove());
 
       for (const [description, create] of [
         ['a text input', () => document.createElement('input')],
