@@ -23,8 +23,6 @@ Markdown.
 
 ## Implementation rules
 
-Moved from `.cursor/rules/`, one section per former rule file.
-
 ### HTML
 
 Form

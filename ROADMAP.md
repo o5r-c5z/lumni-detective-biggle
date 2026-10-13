@@ -10,8 +10,7 @@ régressions, avant d'en dériver Don Quijote (`o5r-c5z/lumni-don-quijote`).
       `tsconfig.spec.json`
 - [x] Premier spec trivial pour que `ng test` ne plante plus (TS18003)
 - [x] `AGENTS.md` : commandes, convention `*.spec.ts`, TDD, renvoi vers la
-      spec d'accessibilité du client, déplacée de `.cursor/rules/` vers
-      `ACCESSIBILITY.md`
+      spec d'accessibilité du client (`ACCESSIBILITY.md`)
 - [x] CI GitHub Actions : tests + vérification des types sur chaque PR
 
 ## 2. Tests de caractérisation des services
