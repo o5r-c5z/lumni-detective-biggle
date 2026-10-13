@@ -23,7 +23,7 @@ régressions, avant d'en dériver Don Quijote (`o5r-c5z/lumni-don-quijote`).
 
 - [x] `EpisodeComponent` : chargement de l'épisode, musique selon l'écran
 - [x] `EpisodeTitleScreenComponent` : liens vers l'épisode et le quiz
-- [ ] `EpisodeVideoComponent` : choix de la vidéo, navigation en fin de vidéo
+- [x] `EpisodeVideoComponent` : choix de la vidéo, navigation en fin de vidéo
 - [ ] `EpisodeQuizComponent` : validation, bonne / mauvaise réponse, fin du quiz
 - [x] `EpisodeCompletionComponent` : écran de fin, reset
 - [x] `AudioControlComponent` : bouton et raccourci `M`
