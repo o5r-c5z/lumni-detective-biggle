@@ -1,82 +1,84 @@
-# Détective Biggle — consignes pour les agents
+# Détective Biggle — agent instructions
 
-Application Angular 19 (composants standalone). Voir `README.md` pour le
-contenu du dépôt et `ROADMAP.md` pour le travail en cours.
+Angular 19 application (standalone components). See `README.md` for the
+repository contents and `ROADMAP.md` for the work in progress. The user-facing
+text, `README.md` and `ROADMAP.md` are in French; this file, code, commits and
+pull requests are in English.
 
-## Commandes
+## Commands
 
 ```sh
-npm install          # dépendances (npm install <paquet> pour en ajouter une)
-npm start            # serveur de développement sur http://localhost:4200/
-npm run build        # build de production
-npm test             # tests unitaires en watch (Karma + Jasmine, Chrome)
-npm run test:ci      # tests unitaires une fois, Chrome headless
-npm run typecheck    # vérification des types (code applicatif et specs)
+npm install          # dependencies (npm install <package> to add one)
+npm start            # dev server on http://localhost:4200/
+npm run build        # production build
+npm test             # unit tests in watch mode (Karma + Jasmine, Chrome)
+npm run test:ci      # unit tests once, headless Chrome
+npm run typecheck    # type check (application code and specs)
 ```
 
-Avant de pousser : `npm run typecheck` et `npm run test:ci` doivent passer.
-La CI GitHub Actions les lance sur chaque pull request.
+Before pushing, `npm run typecheck` and `npm run test:ci` must pass. The
+GitHub Actions CI runs both on every pull request.
 
 ## Tests
 
-- Un fichier `*.spec.ts` à côté du fichier testé
+- One `*.spec.ts` file next to the file under test
   (`episode.service.ts` → `episode.service.spec.ts`).
-- Jasmine pour les assertions et les espions, `TestBed` pour les services et
-  les composants.
-- Tester le comportement observable (DOM rendu, navigation, valeurs émises),
-  pas les détails d'implémentation.
-- Les dépendances externes (lecteur Vimeo, `Audio`, `fetch`, `LiveAnnouncer`)
-  sont remplacées par des doublures : aucun test ne joue de son ni n'appelle
-  le réseau.
+- Jasmine for assertions and spies, `TestBed` for services and components.
+- Test observable behavior (rendered DOM, navigation, emitted values), not
+  implementation details.
+- External dependencies (Vimeo player, `Audio`, `fetch`, `LiveAnnouncer`) are
+  replaced by test doubles: no test plays a sound or hits the network.
 
-## Développement en TDD
+## Test-driven development
 
-Toute nouvelle fonctionnalité ou correction de bug commence par un test qui
-échoue :
+Every new feature or bug fix starts with a failing test:
 
-1. **Rouge** — écrire un seul test pour le comportement visé et le voir
-   échouer pour la bonne raison.
-2. **Vert** — écrire l'implémentation minimale qui le fait passer.
-3. **Refactor** — améliorer la structure, la suite restant verte.
+1. **Red** — write a single test for the target behavior and watch it fail
+   for the right reason.
+2. **Green** — write the minimal implementation that makes it pass.
+3. **Refactor** — improve the structure while the suite stays green.
 
-Pour le code existant non couvert, écrire d'abord des tests de
-caractérisation qui figent le comportement actuel avant de le modifier.
+For existing code without tests, first write characterization tests that pin
+down the current behavior, then change it.
 
-## Accessibilité
+## Accessibility
 
-L'application doit rester utilisable au clavier et avec un lecteur d'écran.
-Règles reprises de `.cursor/rules/`.
+The application must stay usable with a keyboard and a screen reader. Rules
+taken from `.cursor/rules/`.
 
 ### HTML
 
-Formulaires :
+Forms:
 
-- L'ordre du focus est cohérent pour l'utilisateur.
-- Seuls les éléments interactifs prennent le focus.
-- Chaque champ est lié à son libellé.
-- Chaque champ est lié à son message d'erreur par `aria-describedby`.
-- Chaque partie d'un formulaire est regroupée dans un `fieldset` avec une
-  `legend`.
-- Un `fieldset` contenant un champ obligatoire a `aria-required="true"`.
-- L'attribut `aria-checked` des cases à cocher et boutons radio est renseigné.
+- Focus order makes sense to the user.
+- Only interactive elements take focus.
+- Every input is linked to its label.
+- Every input is linked to its error message through `aria-describedby`.
+- Every part of a form is grouped in a `fieldset` with a `legend`.
+- Required inputs carry the native `required` attribute. `aria-required` is
+  only for roles that support it (for example a custom control or a
+  `radiogroup`), never on a plain `fieldset`.
+- Native checkboxes and radio buttons expose their checked state themselves:
+  do not set `aria-checked` on them. Only a custom control (`role="checkbox"`
+  or `role="radio"`) carries `aria-checked`, bound to its real state.
 
-Étapes :
+Steps:
 
-- Chaque `fieldset` d'un formulaire indique l'étape (par exemple
-  « Question 1 sur 3 »).
+- Every `fieldset` of a multi-step form states the step (for example
+  "Question 1 sur 3").
 
-Lecteurs d'écran :
+Screen readers:
 
-- L'application est compatible avec NVDA, VoiceOver et TalkBack.
-- Les éléments décoratifs sont ignorés par les lecteurs d'écran.
-- Les images porteuses de sens ont un attribut `alt`.
+- The application works with NVDA, VoiceOver and TalkBack.
+- Decorative elements are hidden from screen readers.
+- Meaningful images have an `alt` attribute.
 
 ### SCSS
 
-- Les éléments interactifs ont un contour de focus d'un contraste d'au moins
-  3:1.
+- Interactive elements have a focus outline with a contrast ratio of at
+  least 3:1.
 
 ### TypeScript
 
-- Quand une partie d'un formulaire est masquée et qu'une autre s'affiche, le
-  focus est placé sur le premier élément de la partie affichée.
+- When one part of a form is hidden and another is shown, focus moves to the
+  first element of the newly shown part.

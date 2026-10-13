@@ -8,8 +8,8 @@ Form
 - Each input must be linked to its corresponding label
 - Each input must be linked to its error message via the aria-describedby attribute
 - Each part of a form must be grouped in a fieldset with a legend
-- If there is a required input in the fieldset, the fieldset should have its aria-required property set to true
-- The aria-checked attribute of the checkboxes or radio buttons must be set
+- Required inputs must have the native required attribute; aria-required is only for roles that support it (a custom control or a radiogroup), never on a plain fieldset
+- Native checkboxes and radio buttons must not have an aria-checked attribute; only custom controls (role checkbox or radio) carry aria-checked, bound to their real state
 
 Stepper
 - Each fieldset within a form should indicate the step (example: "Question 1 out of 3")
