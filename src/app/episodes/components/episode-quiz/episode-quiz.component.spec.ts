@@ -50,6 +50,11 @@ function tickErrors(milliseconds: number): string[] {
   }
 }
 
+/** Each error of a timer callback comes out of `tick()` twice. */
+function reportedTwice(...errors: string[]): string[] {
+  return errors.flatMap((error) => [error, error]);
+}
+
 const formNotRendered =
   "TypeError: Cannot read properties of undefined (reading 'nativeElement')";
 const noVisibleQuestion =
@@ -88,10 +93,9 @@ describe('EpisodeQuizComponent', () => {
   });
 
   /** Displays the quiz screen, to be called inside `fakeAsync`. */
-  function showQuiz(): HTMLElement {
+  function showQuiz(): void {
     harness.navigateByUrl('/3/quiz');
     tick();
-    return harness.routeNativeElement!;
   }
 
   function url(): string {
@@ -157,10 +161,7 @@ describe('EpisodeQuizComponent', () => {
       episodeService.incrementQuizStep();
       showQuiz();
 
-      expect(visibleFieldsets().map((fieldset) => fieldset.hidden)).toEqual([
-        false,
-      ]);
-      expect(visibleFieldsets()[0]).toBe(fieldsets()[1]);
+      expect(visibleFieldsets()).toEqual([fieldsets()[1]]);
     }));
 
     it('lists the answers as radio buttons with a hidden correction', fakeAsync(() => {
@@ -202,6 +203,22 @@ describe('EpisodeQuizComponent', () => {
           'Bonne réponse !',
           false,
         ],
+      ]);
+    }));
+
+    it('marks the right answer and its correction as correct', fakeAsync(() => {
+      episodeService.setEpisode(createEpisode());
+      showQuiz();
+
+      expect(
+        radios(fieldsets()[0]).map((input) => [
+          input.classList.contains('correct'),
+          correction(input).classList.contains('correct'),
+        ]),
+      ).toEqual([
+        [false, false],
+        [false, false],
+        [true, true],
       ]);
     }));
 
@@ -285,7 +302,10 @@ describe('EpisodeQuizComponent', () => {
       showQuiz();
 
       expect(host().children.length).toBe(0);
-      expect(new Set(tickErrors(100))).toEqual(new Set([formNotRendered]));
+      // Both the focus and the slide-in timers fail.
+      expect(tickErrors(100)).toEqual(
+        reportedTwice(formNotRendered, formNotRendered),
+      );
     }));
 
     it('throws a TypeError when the episode has no question', fakeAsync(() => {
@@ -293,7 +313,7 @@ describe('EpisodeQuizComponent', () => {
       showQuiz();
 
       expect(fieldsets()).toEqual([]);
-      expect(new Set(tickErrors(100))).toEqual(new Set([noVisibleQuestion]));
+      expect(tickErrors(100)).toEqual(reportedTwice(noVisibleQuestion));
     }));
 
     it('shows no question and throws a TypeError once the quiz is complete', fakeAsync(() => {
@@ -305,7 +325,7 @@ describe('EpisodeQuizComponent', () => {
       expect(fieldsets().length).toBe(2);
       expect(visibleFieldsets()).toEqual([]);
       expect(host().querySelector('nav')).not.toBeNull();
-      expect(new Set(tickErrors(100))).toEqual(new Set([noVisibleQuestion]));
+      expect(tickErrors(100)).toEqual(reportedTwice(noVisibleQuestion));
     }));
   });
 
@@ -338,20 +358,49 @@ describe('EpisodeQuizComponent', () => {
       );
     }));
 
-    it('also validates on Enter from the validate button', fakeAsync(() => {
-      episodeService.setEpisode(createEpisode());
-      showQuiz();
-      tick(100);
-      radios(fieldsets()[0])[0].click();
+    describe('on Enter on the validate button', () => {
+      /**
+       * Presses Enter on the validate button. A synthetic keydown doesn't
+       * activate the button, so this also fires the click that a browser
+       * fires when the keydown isn't prevented.
+       */
+      function pressEnterOnValidate(): void {
+        const button = validateButton(fieldsets()[0]);
+        button.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
+        );
+        button.click();
+      }
 
-      validateButton(fieldsets()[0]).dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
-      );
+      it('validates a wrong answer twice', fakeAsync(() => {
+        episodeService.setEpisode(createEpisode());
+        showQuiz();
+        tick(100);
+        radios(fieldsets()[0])[0].click();
 
-      expect(audioService.playSoundEffect).toHaveBeenCalledOnceWith(
-        '/audio/App Negative.mp3',
-      );
-    }));
+        pressEnterOnValidate();
+
+        expect(audioService.playSoundEffect.calls.allArgs()).toEqual([
+          ['/audio/App Negative.mp3'],
+          ['/audio/App Negative.mp3'],
+        ]);
+        tick(2000);
+      }));
+
+      it('validates a right answer once, as it locks the question', fakeAsync(() => {
+        episodeService.setEpisode(createEpisode());
+        showQuiz();
+        tick(100);
+        radios(fieldsets()[0])[2].click();
+
+        pressEnterOnValidate();
+
+        expect(audioService.playSoundEffect).toHaveBeenCalledOnceWith(
+          '/audio/Win 3.mp3',
+        );
+        tick(2400);
+      }));
+    });
   });
 
   describe('a wrong answer', () => {
