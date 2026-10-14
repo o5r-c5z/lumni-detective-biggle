@@ -32,4 +32,4 @@ régressions, avant d'en dériver Don Quijote (`o5r-c5z/lumni-don-quijote`).
 
 ## 4. Documentation
 
-- [ ] README : lancer les tests, vérifier les types, développer en TDD
+- [x] README : lancer les tests, vérifier les types, développer en TDD
