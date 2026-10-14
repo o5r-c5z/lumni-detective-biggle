@@ -69,7 +69,7 @@ npm run typecheck    # vérification des types (code de l'application et specs)
 
 - `npm test` lance Karma en watch dans Chrome : la suite repasse à chaque modification.
 - `npm run test:ci` lance la suite une seule fois dans Chrome headless.
-- `npm run typecheck` lance `tsc --noEmit` sur `tsconfig.app.json` puis sur `tsconfig.spec.json`, donc vérifie aussi les specs. Il ne vérifie pas les templates HTML : `ng test` les compile en JIT, sans vérification de types ; seul `npm run build` (compilation AOT avec `strictTemplates`) les vérifie.
+- `npm run typecheck` lance `tsc --noEmit` sur `tsconfig.app.json` puis sur `tsconfig.spec.json`, donc vérifie aussi les specs. Il ne vérifie pas les templates HTML : `ng test` les compile en JIT, sans vérification de types ; `npm run build` et `npm start` (via `ng serve`) les vérifient, car ils compilent en AOT avec `strictTemplates`.
 - Avant de pousser, `npm run typecheck` et `npm run test:ci` doivent passer : la CI GitHub Actions (`.github/workflows/ci.yml`) lance les deux sur chaque pull request.
 
 Chaque fichier testé a son spec à côté de lui (`episode.service.ts` → `episode.service.spec.ts`). Les tests vérifient le comportement observable (DOM rendu, navigation, valeurs émises) et non les détails d'implémentation.
