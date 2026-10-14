@@ -469,29 +469,40 @@ describe('EpisodeVideoComponent', () => {
       });
     }
 
-    it('plays the lesson from the end of the investigation', async () => {
-      const host = await showVideo();
-      emit('ended');
+    describe('then "Revoir le cours d’Owliver"', () => {
+      // The end of the video schedules the focus with setTimeout: the mock
+      // clock keeps that timer from firing during a later test.
+      function endVideo(): void {
+        jasmine.clock().install();
+        emit('ended');
+      }
 
-      linkNamed(host, 'Revoir le cours d’Owliver').click();
-      await harness.fixture.whenStable();
+      afterEach(() => jasmine.clock().uninstall());
 
-      expect(currentUrl()).toBe('/3/video?videoType=pedagogicalConcept');
-      expect(requestedVideos()).toEqual([
-        'https://vimeo.com/100',
-        'https://vimeo.com/200',
-      ]);
-    });
+      it('plays the lesson from the end of the investigation', async () => {
+        const host = await showVideo();
+        endVideo();
 
-    it('does nothing on "Revoir le cours" at the end of the lesson', async () => {
-      const host = await showVideo('?videoType=pedagogicalConcept');
-      emit('ended');
+        linkNamed(host, 'Revoir le cours d’Owliver').click();
+        await harness.fixture.whenStable();
 
-      linkNamed(host, 'Revoir le cours d’Owliver').click();
-      await harness.fixture.whenStable();
+        expect(currentUrl()).toBe('/3/video?videoType=pedagogicalConcept');
+        expect(requestedVideos()).toEqual([
+          'https://vimeo.com/100',
+          'https://vimeo.com/200',
+        ]);
+      });
 
-      expect(requestedVideos()).toEqual(['https://vimeo.com/200']);
-      expect(host.querySelector('nav')).not.toBeNull();
+      it('does nothing on "Revoir le cours" at the end of the lesson', async () => {
+        const host = await showVideo('?videoType=pedagogicalConcept');
+        endVideo();
+
+        linkNamed(host, 'Revoir le cours d’Owliver').click();
+        await harness.fixture.whenStable();
+
+        expect(requestedVideos()).toEqual(['https://vimeo.com/200']);
+        expect(host.querySelector('nav')).not.toBeNull();
+      });
     });
   });
 });
