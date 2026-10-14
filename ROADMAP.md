@@ -21,14 +21,14 @@ régressions, avant d'en dériver Don Quijote (`o5r-c5z/lumni-don-quijote`).
 
 ## 3. Tests de caractérisation des composants
 
-- [ ] `EpisodeComponent` : chargement de l'épisode, musique selon l'écran
-- [ ] `EpisodeTitleScreenComponent` : liens vers l'épisode et le quiz
+- [x] `EpisodeComponent` : chargement de l'épisode, musique selon l'écran
+- [x] `EpisodeTitleScreenComponent` : liens vers l'épisode et le quiz
 - [ ] `EpisodeVideoComponent` : choix de la vidéo, navigation en fin de vidéo
 - [ ] `EpisodeQuizComponent` : validation, bonne / mauvaise réponse, fin du quiz
-- [ ] `EpisodeCompletionComponent` : écran de fin, reset
-- [ ] `AudioControlComponent` : bouton et raccourci `M`
-- [ ] `NotFoundComponent`
-- [ ] Routes : `:episodeNumber`, enfants, `**`
+- [x] `EpisodeCompletionComponent` : écran de fin, reset
+- [x] `AudioControlComponent` : bouton et raccourci `M`
+- [x] `NotFoundComponent`
+- [x] Routes : `:episodeNumber`, enfants, `**`
 
 ## 4. Documentation
 
