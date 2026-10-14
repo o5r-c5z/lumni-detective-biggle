@@ -48,7 +48,7 @@ d'écran. Projet commandé par Lumni, produit par Big Company.
 - Audio HTML5 (`Audio`) : musique de fond en boucle, effets sonores ponctuels, gestion de l'autoplay bloqué (reprise à la première interaction).
 - Données d'épisode chargées en `fetch` JSON au runtime, pas de back-end applicatif.
 - Cadrage fixe 16/9, orientation paysage (la prise en charge du portrait a été retirée).
-- Tests unitaires avec Karma + Jasmine : un `*.spec.ts` à côté de chaque fichier testé (`skipTests` reste activé pour les schematics).
+- Tests unitaires avec Karma + Jasmine : un `*.spec.ts` à côté de chaque fichier testé, que `ng generate` crée par défaut.
 - Gestion des dépendances : npm (`package-lock.json`).
 
 ## Développement
