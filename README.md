@@ -29,6 +29,10 @@ d'écran. Projet commandé par Lumni, produit par Big Company.
 - `src/styles/_reset.scss`, `_a11y.scss`, `_figma.scss` — mixins et fonctions (reset de `fieldset`, contour de focus, conversion des valeurs Figma en `rem`).
 - `public/` — fichiers statiques copiés tels quels : `audio/` (musique et effets `.mp3`), `images/landscape/` et `images/portrait/` (décors), `images/` (personnages Biggle et Owliver), `favicon.ico`.
 - `ACCESSIBILITY.md` — exigences d'accessibilité du client : exigences générales (contrastes, zones interactives, parcours clavier, iframes, mécaniques de jeu) et règles d'implémentation (HTML, SCSS, TS).
+- `src/**/*.spec.ts` — tests unitaires (Karma + Jasmine), un spec à côté de chaque fichier testé.
+- `.github/workflows/ci.yml` — CI GitHub Actions : vérification des types et tests sur chaque pull request et sur `main`.
+- `AGENTS.md` — instructions pour les agents de code (en anglais) : commandes, conventions de test, TDD.
+- `ROADMAP.md` — feuille de route de la couverture de tests.
 - `angular.json`, `tsconfig*.json`, `.editorconfig`, `.vscode/` — configuration du projet et de l'éditeur.
 - `uploads/` — **non versionné** (`.gitignore`) ; contient les données des épisodes (`episodes/<n>/episode.json`), servies uniquement en configuration de développement.
 
@@ -49,7 +53,7 @@ d'écran. Projet commandé par Lumni, produit par Big Company.
 
 ## Développement
 
-Prérequis : Node.js et npm (versions compatibles avec Angular 19 / Angular CLI 19). Angular CLI peut être utilisé via `npx` ou installé globalement.
+Prérequis : Node.js et npm (versions compatibles avec Angular 19 / Angular CLI 19). Angular CLI peut être utilisé via `npx` ou installé globalement. Les tests unitaires demandent en plus Google Chrome (ou Chromium, désigné par la variable `CHROME_BIN`).
 
 ```sh
 npm install
@@ -65,7 +69,7 @@ npm run typecheck    # vérification des types (code de l'application et specs)
 
 - `npm test` lance Karma en watch dans Chrome : la suite repasse à chaque modification.
 - `npm run test:ci` lance la suite une seule fois dans Chrome headless.
-- `npm run typecheck` lance `tsc --noEmit` sur `tsconfig.app.json` puis sur `tsconfig.spec.json`, donc vérifie aussi les specs.
+- `npm run typecheck` lance `tsc --noEmit` sur `tsconfig.app.json` puis sur `tsconfig.spec.json`, donc vérifie aussi les specs. Il ne vérifie pas les templates HTML : `ng test` les compile en JIT, sans vérification de types ; seul `npm run build` (compilation AOT avec `strictTemplates`) les vérifie.
 - Avant de pousser, `npm run typecheck` et `npm run test:ci` doivent passer : la CI GitHub Actions (`.github/workflows/ci.yml`) lance les deux sur chaque pull request.
 
 Chaque fichier testé a son spec à côté de lui (`episode.service.ts` → `episode.service.spec.ts`). Les tests vérifient le comportement observable (DOM rendu, navigation, valeurs émises) et non les détails d'implémentation.
@@ -86,7 +90,7 @@ Toute nouvelle fonctionnalité et toute correction commencent par un test qui é
 2. **Vert** — écrire l'implémentation minimale qui le fait passer.
 3. **Refactorisation** — améliorer la structure du code, la suite restant verte.
 
-Le code existant est couvert par des tests de caractérisation : ils figent le comportement actuel, défauts compris. Pour corriger un comportement figé par l'un d'eux, modifier d'abord ce test pour qu'il décrive le comportement attendu, le voir échouer, puis changer le code. Les issues #15 (nettoyage sans effet visible) et #19 (défauts visibles, surtout d'accessibilité) listent les défauts relevés pendant l'écriture de ces tests et, le cas échéant, le test qui fige chacun d'eux.
+Le code existant est couvert par des tests de caractérisation (sauf l'amorçage, `main.ts` et `app.config.ts`) : ils figent le comportement actuel, défauts compris. Avant de modifier du code encore sans test, écrire d'abord de tels tests. Pour corriger un comportement figé par l'un d'eux, modifier d'abord ce test pour qu'il décrive le comportement attendu, le voir échouer, puis changer le code. Les issues #15 (nettoyage sans effet visible) et #19 (défauts visibles, surtout d'accessibilité) listent les défauts relevés pendant l'écriture de ces tests et, le cas échéant, le test qui fige chacun d'eux.
 
 ### Notes de configuration
 
