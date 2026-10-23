@@ -27,7 +27,7 @@ d'écran. Projet commandé par Lumni, produit par Big Company.
 - `src/app/shared/components/not-found/` — message « numéro d'épisode valide ».
 - `src/styles.scss` — styles globaux, variables CSS (couleurs, ratio d'écran 16/9), classes `.btn`, `.screen`.
 - `src/styles/_reset.scss`, `_a11y.scss`, `_figma.scss` — mixins et fonctions (reset de `fieldset`, contour de focus, conversion des valeurs Figma en `rem`).
-- `public/` — fichiers statiques copiés tels quels : `audio/` (musique et effets `.mp3`), `images/landscape/` et `images/portrait/` (décors), `images/` (personnages Biggle et Owliver), `favicon.ico`.
+- `public/` — fichiers statiques copiés tels quels : `audio/` (musique et effets `.mp3`), `images/landscape/` et `images/portrait/` (décors), `images/` (personnages Biggle et Owliver), `favicon.ico`, `.htaccess` (configuration Apache de l'hébergement actuel, voir « Notes de configuration »).
 - `ACCESSIBILITY.md` — exigences d'accessibilité du client : exigences générales (contrastes, zones interactives, parcours clavier, iframes, mécaniques de jeu) et règles d'implémentation (HTML, SCSS, TS).
 - `src/**/*.spec.ts` — tests unitaires (Karma + Jasmine), un spec à côté de chaque fichier testé.
 - `.github/workflows/ci.yml` — CI GitHub Actions : vérification des types, tests et build de production sur chaque pull request et sur `main`.
@@ -98,6 +98,7 @@ Le code existant est couvert par des tests de caractérisation (sauf l'amorçage
 - La configuration de production (`npm run build`) ne copie pas `uploads/` ; l'hébergement doit exposer ce chemin.
 - Fichiers audio référencés en dur depuis `public/audio/` : `Dark Comedy Ident - Main.mp3` (musique de fond), `Win 3.mp3` (bonne réponse), `App Negative.mp3` (mauvaise réponse).
 - Chemin de sortie du build : `dist/enquetes-educatives/`.
+- `public/.htaccess` est propre à l'hébergement actuel, un Apache : il ne sert à rien sur un autre serveur, qui demandera sa propre configuration. Le build le copie dans `dist/enquetes-educatives/browser/`, à déposer avec le reste du site (certains clients FTP masquent les fichiers commençant par un point). Il interdit la liste du contenu des dossiers (`Options -Indexes`), redirige vers HTTPS, sert `index.html` pour les routes Angular (`/1`, `/1/quiz`…) et désactive le cache du navigateur. Il demande `mod_rewrite`, `mod_headers` et un `AllowOverride` qui autorise `Options` et `FileInfo`.
 
 ## Crédits
 
