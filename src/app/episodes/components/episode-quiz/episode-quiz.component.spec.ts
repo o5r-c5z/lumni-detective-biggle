@@ -71,6 +71,7 @@ describe('EpisodeQuizComponent', () => {
   beforeEach(async () => {
     audioService = jasmine.createSpyObj<AudioService>('AudioService', [
       'playSoundEffect',
+      'preloadSoundEffect',
     ]);
     audioService.playSoundEffect.and.resolveTo();
 
@@ -326,6 +327,22 @@ describe('EpisodeQuizComponent', () => {
       expect(visibleFieldsets()).toEqual([]);
       expect(host().querySelector('nav')).not.toBeNull();
       expect(tickErrors(100)).toEqual(reportedTwice(noVisibleQuestion));
+    }));
+  });
+
+  describe('sound effects', () => {
+    it('preloads the right-answer and wrong-answer sounds', fakeAsync(() => {
+      episodeService.setEpisode(createEpisode());
+      showQuiz();
+      tick(100);
+
+      expect(audioService.preloadSoundEffect).toHaveBeenCalledWith(
+        '/audio/Win 3.mp3',
+      );
+      expect(audioService.preloadSoundEffect).toHaveBeenCalledWith(
+        '/audio/App Negative.mp3',
+      );
+      expect(audioService.playSoundEffect).not.toHaveBeenCalled();
     }));
   });
 
