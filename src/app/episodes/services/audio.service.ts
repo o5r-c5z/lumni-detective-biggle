@@ -258,6 +258,7 @@ export class AudioService implements OnDestroy {
     }
 
     this.endedSoundEffects.delete(audioSource);
+    endedSoundEffect.currentTime = 0;
     return endedSoundEffect;
   }
 
