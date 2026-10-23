@@ -266,7 +266,10 @@ export class AudioService implements OnDestroy {
    * @param audioSource - The path to the sound effect audio file
    */
   preloadSoundEffect(audioSource: string): void {
-    if (this.idleSoundEffects.has(audioSource)) {
+    if (
+      this.idleSoundEffects.has(audioSource) ||
+      this.playingSoundEffects.has(audioSource)
+    ) {
       return;
     }
     this.idleSoundEffects.set(audioSource, new Audio(audioSource));
