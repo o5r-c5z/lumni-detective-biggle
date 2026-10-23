@@ -210,7 +210,11 @@ export class AudioService implements OnDestroy {
     if (playingSoundEffect) {
       playingSoundEffect.currentTime = 0;
       playingSoundEffect.volume = this.soundEffectVolume(volume);
-      return playingSoundEffect.play();
+      return playingSoundEffect.play().catch((error) => {
+        console.error('Error playing sound effect:', error);
+        this.playingSoundEffects.delete(audioSource);
+        throw error;
+      });
     }
 
     const soundEffect = this.takeSoundEffect(audioSource);
