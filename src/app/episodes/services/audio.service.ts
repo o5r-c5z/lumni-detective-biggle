@@ -261,6 +261,14 @@ export class AudioService implements OnDestroy {
     });
   }
 
+  /**
+   * Create the element of a sound effect ahead of time, without playing it
+   * @param audioSource - The path to the sound effect audio file
+   */
+  preloadSoundEffect(audioSource: string): void {
+    this.endedSoundEffects.set(audioSource, new Audio(audioSource));
+  }
+
   private soundEffectVolume(requestedVolume?: number): number {
     return requestedVolume ?? this.soundEffectsVolume.value;
   }
