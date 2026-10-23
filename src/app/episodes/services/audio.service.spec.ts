@@ -487,6 +487,25 @@ describe('AudioService', () => {
       expect(service.getActiveSoundEffectsCount()).toBe(1);
     });
 
+    it('restarts from the beginning, at the volume requested for this play, when replayed before it has ended', async () => {
+      await service.playSoundEffect('/audio/App Negative.mp3', 0.8);
+      const effect = createdAudio[0];
+      // Still playing: the element is part-way through the sound.
+      effect.currentTime = 0.6;
+      let startedAt: number | undefined;
+      let startedVolume: number | undefined;
+      effect.play.and.callFake(() => {
+        startedAt = effect.currentTime;
+        startedVolume = effect.volume;
+        return Promise.resolve();
+      });
+
+      await service.playSoundEffect('/audio/App Negative.mp3', 0.3);
+
+      expect(startedAt).toBe(0);
+      expect(startedVolume).toBe(0.3);
+    });
+
     it('removes the element when it fails to load', async () => {
       await service.playSoundEffect('/audio/Win 3.mp3');
       const effect = createdAudio[0];
