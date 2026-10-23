@@ -211,7 +211,7 @@ export class AudioService implements OnDestroy {
       playingSoundEffect.currentTime = 0;
       playingSoundEffect.volume = this.soundEffectVolume(volume);
       return playingSoundEffect.play().catch((error) => {
-        console.error('Error playing sound effect:', error);
+        this.logSoundEffectError(error);
         this.playingSoundEffects.delete(audioSource);
         throw error;
       });
@@ -226,7 +226,6 @@ export class AudioService implements OnDestroy {
     // Add to tracking array
     this.soundEffects.push(soundEffect);
 
-    // Clean up when the sound finishes playing
     const cleanup = () => {
       this.playingSoundEffects.delete(audioSource);
       const index = this.soundEffects.indexOf(soundEffect);
@@ -238,27 +237,27 @@ export class AudioService implements OnDestroy {
         soundEffect.parentNode.removeChild(soundEffect);
       }
       
-      soundEffect.removeEventListener('ended', cleanup);
-      soundEffect.removeEventListener('error', logLoadError);
+      soundEffect.removeEventListener('ended', cleanUpAndKeepForReplay);
+      soundEffect.removeEventListener('error', logLoadErrorAndCleanUp);
     };
 
-    const logLoadError = (e: Event) => {
-      console.error('Error playing sound effect:', e);
+    const cleanUpAndKeepForReplay = () => {
+      cleanup();
+      this.idleSoundEffects.set(audioSource, soundEffect);
+    };
+
+    const logLoadErrorAndCleanUp = (e: Event) => {
+      this.logSoundEffectError(e);
       cleanup();
     };
 
-    soundEffect.addEventListener('ended', cleanup);
-    soundEffect.addEventListener(
-      'ended',
-      () => this.idleSoundEffects.set(audioSource, soundEffect),
-      { once: true },
-    );
-    soundEffect.addEventListener('error', logLoadError);
+    soundEffect.addEventListener('ended', cleanUpAndKeepForReplay);
+    soundEffect.addEventListener('error', logLoadErrorAndCleanUp);
 
     document.body.appendChild(soundEffect);
 
     return soundEffect.play().catch((error) => {
-      console.error('Error playing sound effect:', error);
+      this.logSoundEffectError(error);
       cleanup();
       throw error;
     });
@@ -294,6 +293,10 @@ export class AudioService implements OnDestroy {
       },
       { once: true },
     );
+  }
+
+  private logSoundEffectError(error: unknown): void {
+    console.error('Error playing sound effect:', error);
   }
 
   private soundEffectVolume(requestedVolume?: number): number {
