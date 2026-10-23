@@ -8,7 +8,7 @@ export class AudioService implements OnDestroy {
   private backgroundMusic: HTMLAudioElement | null = null;
   private soundEffects: HTMLAudioElement[] = [];
   private endedSoundEffects = new Map<string, HTMLAudioElement>();
-  private backgroundMusicVolume =new BehaviorSubject<number>(0.05);
+  private backgroundMusicVolume = new BehaviorSubject<number>(0.05);
   private soundEffectsVolume = new BehaviorSubject<number>(0.5);
   private isPlayingSubject = new BehaviorSubject<boolean>(false);
 
@@ -205,9 +205,7 @@ export class AudioService implements OnDestroy {
       return Promise.reject(new Error('Audio source is required'));
     }
 
-    const soundEffect =
-      this.endedSoundEffects.get(audioSource) ?? new Audio(audioSource);
-    this.endedSoundEffects.delete(audioSource);
+    const soundEffect = this.takeSoundEffect(audioSource);
     soundEffect.volume = volume ?? this.soundEffectsVolume.value;
     soundEffect.id = `sound-effect-${Date.now()}`;
     soundEffect.setAttribute('aria-hidden', 'true');
@@ -251,6 +249,16 @@ export class AudioService implements OnDestroy {
       cleanup();
       throw error;
     });
+  }
+
+  private takeSoundEffect(audioSource: string): HTMLAudioElement {
+    const endedSoundEffect = this.endedSoundEffects.get(audioSource);
+    if (!endedSoundEffect) {
+      return new Audio(audioSource);
+    }
+
+    this.endedSoundEffects.delete(audioSource);
+    return endedSoundEffect;
   }
 
   /**
