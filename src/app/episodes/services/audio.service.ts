@@ -272,7 +272,17 @@ export class AudioService implements OnDestroy {
     ) {
       return;
     }
-    this.idleSoundEffects.set(audioSource, new Audio(audioSource));
+    const preloaded = new Audio(audioSource);
+    preloaded.addEventListener(
+      'error',
+      () => {
+        if (this.idleSoundEffects.get(audioSource) === preloaded) {
+          this.idleSoundEffects.delete(audioSource);
+        }
+      },
+      { once: true },
+    );
+    this.idleSoundEffects.set(audioSource, preloaded);
   }
 
   private soundEffectVolume(requestedVolume?: number): number {
