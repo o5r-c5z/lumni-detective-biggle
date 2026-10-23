@@ -583,6 +583,23 @@ describe('AudioService', () => {
       expect(effect.play).toHaveBeenCalledTimes(2);
     });
 
+    it('logs a load error once when the element has been played several times', async () => {
+      await service.playSoundEffect('/audio/Win 3.mp3');
+      const effect = createdAudio[0];
+      effect.dispatchEvent(new Event('ended'));
+      await service.playSoundEffect('/audio/Win 3.mp3');
+      effect.dispatchEvent(new Event('ended'));
+      await service.playSoundEffect('/audio/Win 3.mp3');
+      const loadError = new Event('error');
+
+      effect.dispatchEvent(loadError);
+
+      expect(console.error).toHaveBeenCalledOnceWith(
+        jasmine.any(String),
+        loadError,
+      );
+    });
+
     it('logs the error and creates a new element when played again after a replay before it had ended failed to play', async () => {
       await service.playSoundEffect('/audio/App Negative.mp3');
       const effect = createdAudio[0];
