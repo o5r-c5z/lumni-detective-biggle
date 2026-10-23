@@ -52,6 +52,9 @@ export class EpisodeQuizComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.audioService.preloadSoundEffect('/audio/Win 3.mp3');
+    this.audioService.preloadSoundEffect('/audio/App Negative.mp3');
+
     this.episodeService.episode$
       .pipe(
         tap((episode?: Episode) => {
