@@ -239,11 +239,15 @@ export class AudioService implements OnDestroy {
       }
       
       soundEffect.removeEventListener('ended', cleanup);
-      soundEffect.removeEventListener('error', cleanup);
+      soundEffect.removeEventListener('error', logLoadError);
+    };
+
+    const logLoadError = (e: Event) => {
+      console.error('Error playing sound effect:', e);
+      cleanup();
     };
 
     soundEffect.addEventListener('ended', cleanup);
-    soundEffect.addEventListener('error', cleanup);
     soundEffect.addEventListener(
       'ended',
       () => this.idleSoundEffects.set(audioSource, soundEffect),
@@ -251,10 +255,7 @@ export class AudioService implements OnDestroy {
     );
 
     // Add error handling
-    soundEffect.addEventListener('error', (e) => {
-      console.error('Error playing sound effect:', e);
-      cleanup();
-    });
+    soundEffect.addEventListener('error', logLoadError);
 
     document.body.appendChild(soundEffect);
 
