@@ -253,8 +253,6 @@ export class AudioService implements OnDestroy {
       () => this.idleSoundEffects.set(audioSource, soundEffect),
       { once: true },
     );
-
-    // Add error handling
     soundEffect.addEventListener('error', logLoadError);
 
     document.body.appendChild(soundEffect);
