@@ -15,6 +15,9 @@ import { Episode } from '../../models';
 import { EpisodeService } from '../../services/episode.service';
 import { AudioService } from '../../services/audio.service';
 
+const RIGHT_ANSWER_SOUND = '/audio/Win 3.mp3';
+const WRONG_ANSWER_SOUND = '/audio/App Negative.mp3';
+
 @Component({
   selector: 'app-episode-quiz',
   imports: [RouterLink],
@@ -52,8 +55,8 @@ export class EpisodeQuizComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.audioService.preloadSoundEffect('/audio/Win 3.mp3');
-    this.audioService.preloadSoundEffect('/audio/App Negative.mp3');
+    this.audioService.preloadSoundEffect(RIGHT_ANSWER_SOUND);
+    this.audioService.preloadSoundEffect(WRONG_ANSWER_SOUND);
 
     this.episodeService.episode$
       .pipe(
@@ -145,7 +148,7 @@ export class EpisodeQuizComponent implements OnInit {
   }
 
   private handleCorrectAnswer(fieldset: HTMLFieldSetElement): void {
-    this.audioService.playSoundEffect('/audio/Win 3.mp3');
+    this.audioService.playSoundEffect(RIGHT_ANSWER_SOUND);
 
     timer(2000)
       .pipe(
@@ -168,7 +171,7 @@ export class EpisodeQuizComponent implements OnInit {
   }
 
   private handleIncorrectAnswer(correction: HTMLElement | null): void {
-    this.audioService.playSoundEffect('/audio/App Negative.mp3');
+    this.audioService.playSoundEffect(WRONG_ANSWER_SOUND);
 
     timer(2000)
       .pipe(takeUntilDestroyed(this.destroyRef))
