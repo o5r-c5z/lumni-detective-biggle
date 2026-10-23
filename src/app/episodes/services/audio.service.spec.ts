@@ -583,6 +583,29 @@ describe('AudioService', () => {
       expect(effect.play).toHaveBeenCalledTimes(2);
     });
 
+    it('logs the error and creates a new element when played again after a replay before it had ended failed to play', async () => {
+      await service.playSoundEffect('/audio/App Negative.mp3');
+      const effect = createdAudio[0];
+      const error = notAllowedError();
+      effect.play.and.rejectWith(error);
+      // Whether this replay's promise rejects is not what this test is about.
+      await service
+        .playSoundEffect('/audio/App Negative.mp3')
+        .catch(() => undefined);
+      // Should the failed element be played again, let it succeed, so that
+      // only the element count tells.
+      effect.play.and.resolveTo();
+
+      await service.playSoundEffect('/audio/App Negative.mp3');
+
+      expect(console.error).toHaveBeenCalledWith(jasmine.any(String), error);
+      expect(audioConstructor).toHaveBeenCalledTimes(2);
+      // The failed element is not played a third time; the new one is.
+      expect(createdAudio.map((audio) => audio.play.calls.count())).toEqual([
+        2, 1,
+      ]);
+    });
+
     it('rejects and removes the element when playback fails', async () => {
       const error = notAllowedError();
       // A function expression, not an arrow: the service calls `new Audio()`.
