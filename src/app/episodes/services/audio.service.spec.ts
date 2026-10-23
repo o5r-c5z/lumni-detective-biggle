@@ -484,6 +484,24 @@ describe('AudioService', () => {
       expect(effect.play).toHaveBeenCalledTimes(2);
     });
 
+    it('creates a new element when playing a preloaded effect that failed to load', async () => {
+      service.preloadSoundEffect('/audio/Win 3.mp3');
+      const effect = createdAudio[0];
+      effect.dispatchEvent(new Event('error'));
+
+      await service.playSoundEffect('/audio/Win 3.mp3');
+
+      expect(audioConstructor.calls.allArgs()).toEqual([
+        ['/audio/Win 3.mp3'],
+        ['/audio/Win 3.mp3'],
+      ]);
+      // The broken preloaded element is never played; the new one is.
+      expect(createdAudio.map((audio) => audio.play.calls.count())).toEqual([
+        0, 1,
+      ]);
+      expect(effect.play).not.toHaveBeenCalled();
+    });
+
     it('restarts from the beginning when played again', async () => {
       await service.playSoundEffect('/audio/Win 3.mp3');
       const effect = createdAudio[0];
