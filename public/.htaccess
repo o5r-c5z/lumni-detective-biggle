@@ -24,10 +24,10 @@ Options -Indexes
 # using it again (a short 304 when it has not changed): index.html, the
 # images and uploads/episodes/<n>/ can be replaced on the server under the
 # same name and show up at once.
-# Every .mp3 file (today, only the sounds in audio/) is kept for a month
-# without checking, so that each right or wrong answer does not wait for the
-# server. A replaced sound needs a new URL to show up at once: see the
-# README, « Notes de configuration ».
+# The sounds in audio/ are the exception: they are kept for a month without
+# checking, so that each right or wrong answer does not wait for the server.
+# A replaced sound needs a new URL to show up at once: see the README,
+# « Notes de configuration ».
 # The check relies on Last-Modified only: compression adds -gzip or -br to
 # the ETag, which then never matches and turns every 304 into a full 200.
 # The bundles built by Angular have a hash of their content in their name
@@ -41,7 +41,7 @@ FileETag None
   <FilesMatch "-[A-Z0-9]{8}\.(js|css)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
-  <FilesMatch "\.mp3$">
+  <If "%{REQUEST_URI} =~ m#^/audio/#">
     Header set Cache-Control "public, max-age=2592000"
-  </FilesMatch>
+  </If>
 </IfModule>
