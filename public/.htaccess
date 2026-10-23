@@ -19,17 +19,22 @@ Options -Indexes
   RewriteRule ^(?!.*\.).*$ index.html [NC,L]
 </IfModule>
 
-# Disable browser caching for all files that don't get a hash string by Angular.
-<FilesMatch "^(?!.*\.([0-9a-z]{20})\.).*$">
-  <IfModule mod_headers.c>
-    FileETag None
-    Header unset ETag
-    Header unset Pragma
-    Header unset Cache-Control
-    Header unset Last-Modified
-    Header set Pragma "no-cache"
-    Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
-    Header set Expires "Mon, 1 Jan 1900 00:00:00 GMT"
-  </IfModule>
-
-</FilesMatch>
+# Browser cache.
+# Every file is kept by the browser, which checks with the server before
+# using it again (a short 304 when it has not changed): index.html, the
+# sounds, the images and uploads/episodes/<n>/ can be replaced on the server
+# under the same name and show up at once.
+# The check relies on Last-Modified only: compression adds -gzip or -br to
+# the ETag, which then never matches and turns every 304 into a full 200.
+# The bundles built by Angular have a hash of their content in their name
+# (main-53JVCIJM.js, styles-3CA2LQGU.css): a new build gives new names, so
+# they are kept for a year without checking. Upload index.html last, so that
+# no visitor gets a bundle that is still being uploaded.
+FileETag None
+<IfModule mod_headers.c>
+  Header unset ETag
+  Header set Cache-Control "no-cache"
+  <FilesMatch "-[A-Z0-9]{8}\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
