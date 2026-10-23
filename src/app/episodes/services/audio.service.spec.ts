@@ -516,6 +516,20 @@ describe('AudioService', () => {
       expect(service.getActiveSoundEffectsCount()).toBe(0);
     });
 
+    it('creates a new element when played again after a replay failed to load', async () => {
+      await service.playSoundEffect('/audio/Win 3.mp3');
+      const effect = createdAudio[0];
+      effect.dispatchEvent(new Event('ended'));
+      await service.playSoundEffect('/audio/Win 3.mp3');
+      effect.dispatchEvent(new Event('error'));
+
+      await service.playSoundEffect('/audio/Win 3.mp3');
+
+      expect(audioConstructor).toHaveBeenCalledTimes(2);
+      expect(createdAudio[1].play).toHaveBeenCalledTimes(1);
+      expect(effect.play).toHaveBeenCalledTimes(2);
+    });
+
     it('rejects and removes the element when playback fails', async () => {
       const error = notAllowedError();
       // A function expression, not an arrow: the service calls `new Audio()`.
