@@ -449,6 +449,23 @@ describe('AudioService', () => {
       expect(effect.play).toHaveBeenCalledTimes(2);
     });
 
+    it('restarts from the beginning when played again', async () => {
+      await service.playSoundEffect('/audio/Win 3.mp3');
+      const effect = createdAudio[0];
+      // An ended element stays at the end of the sound.
+      effect.currentTime = 1.2;
+      effect.dispatchEvent(new Event('ended'));
+      let startedAt: number | undefined;
+      effect.play.and.callFake(() => {
+        startedAt = effect.currentTime;
+        return Promise.resolve();
+      });
+
+      await service.playSoundEffect('/audio/Win 3.mp3');
+
+      expect(startedAt).toBe(0);
+    });
+
     it('removes the element when it fails to load', async () => {
       await service.playSoundEffect('/audio/Win 3.mp3');
       const effect = createdAudio[0];
