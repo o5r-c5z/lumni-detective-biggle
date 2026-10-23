@@ -8,7 +8,7 @@ export class AudioService implements OnDestroy {
   private backgroundMusic: HTMLAudioElement | null = null;
   private soundEffects: HTMLAudioElement[] = [];
   private playingSoundEffects = new Map<string, HTMLAudioElement>();
-  private endedSoundEffects = new Map<string, HTMLAudioElement>();
+  private idleSoundEffects = new Map<string, HTMLAudioElement>();
   private backgroundMusicVolume = new BehaviorSubject<number>(0.05);
   private soundEffectsVolume = new BehaviorSubject<number>(0.5);
   private isPlayingSubject = new BehaviorSubject<boolean>(false);
@@ -242,7 +242,7 @@ export class AudioService implements OnDestroy {
     soundEffect.addEventListener('error', cleanup);
     soundEffect.addEventListener(
       'ended',
-      () => this.endedSoundEffects.set(audioSource, soundEffect),
+      () => this.idleSoundEffects.set(audioSource, soundEffect),
       { once: true },
     );
 
@@ -266,7 +266,7 @@ export class AudioService implements OnDestroy {
    * @param audioSource - The path to the sound effect audio file
    */
   preloadSoundEffect(audioSource: string): void {
-    this.endedSoundEffects.set(audioSource, new Audio(audioSource));
+    this.idleSoundEffects.set(audioSource, new Audio(audioSource));
   }
 
   private soundEffectVolume(requestedVolume?: number): number {
@@ -274,14 +274,14 @@ export class AudioService implements OnDestroy {
   }
 
   private takeSoundEffect(audioSource: string): HTMLAudioElement {
-    const endedSoundEffect = this.endedSoundEffects.get(audioSource);
-    if (!endedSoundEffect) {
+    const idleSoundEffect = this.idleSoundEffects.get(audioSource);
+    if (!idleSoundEffect) {
       return new Audio(audioSource);
     }
 
-    this.endedSoundEffects.delete(audioSource);
-    endedSoundEffect.currentTime = 0;
-    return endedSoundEffect;
+    this.idleSoundEffects.delete(audioSource);
+    idleSoundEffect.currentTime = 0;
+    return idleSoundEffect;
   }
 
   /**
