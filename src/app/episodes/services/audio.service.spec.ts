@@ -473,6 +473,17 @@ describe('AudioService', () => {
       expect(effect.play).toHaveBeenCalledTimes(1);
     });
 
+    it('creates no new element when preloading an effect while it is playing, and plays the same element again', async () => {
+      await service.playSoundEffect('/audio/Win 3.mp3');
+      const effect = createdAudio[0];
+
+      service.preloadSoundEffect('/audio/Win 3.mp3');
+      await service.playSoundEffect('/audio/Win 3.mp3');
+
+      expect(audioConstructor).toHaveBeenCalledTimes(1);
+      expect(effect.play).toHaveBeenCalledTimes(2);
+    });
+
     it('restarts from the beginning when played again', async () => {
       await service.playSoundEffect('/audio/Win 3.mp3');
       const effect = createdAudio[0];
