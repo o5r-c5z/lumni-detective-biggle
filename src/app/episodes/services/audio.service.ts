@@ -273,16 +273,24 @@ export class AudioService implements OnDestroy {
       return;
     }
     const preloaded = new Audio(audioSource);
-    preloaded.addEventListener(
+    this.forgetIdleSoundEffectIfItFailsToLoad(audioSource, preloaded);
+    this.idleSoundEffects.set(audioSource, preloaded);
+  }
+
+  private forgetIdleSoundEffectIfItFailsToLoad(
+    audioSource: string,
+    soundEffect: HTMLAudioElement,
+  ): void {
+    soundEffect.addEventListener(
       'error',
       () => {
-        if (this.idleSoundEffects.get(audioSource) === preloaded) {
+        // By then, playing may have taken this element out of the idle ones.
+        if (this.idleSoundEffects.get(audioSource) === soundEffect) {
           this.idleSoundEffects.delete(audioSource);
         }
       },
       { once: true },
     );
-    this.idleSoundEffects.set(audioSource, preloaded);
   }
 
   private soundEffectVolume(requestedVolume?: number): number {
