@@ -39,6 +39,11 @@ describe('AudioService', () => {
     return createdAudio[createdAudio.length - 1];
   }
 
+  async function playEffect(src: string, volume?: number): Promise<FakeAudio> {
+    await service.playSoundEffect(src, volume);
+    return createdAudio[createdAudio.length - 1];
+  }
+
   function notAllowedError(): DOMException {
     return new DOMException('Autoplay blocked', 'NotAllowedError');
   }
@@ -429,8 +434,7 @@ describe('AudioService', () => {
     });
 
     it('removes the element once it has ended', async () => {
-      await service.playSoundEffect('/audio/Win 3.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/Win 3.mp3');
 
       effect.dispatchEvent(new Event('ended'));
 
@@ -439,8 +443,7 @@ describe('AudioService', () => {
     });
 
     it('plays the same element again when replayed after it has ended', async () => {
-      await service.playSoundEffect('/audio/Win 3.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/Win 3.mp3');
       effect.dispatchEvent(new Event('ended'));
 
       await service.playSoundEffect('/audio/Win 3.mp3');
@@ -474,8 +477,7 @@ describe('AudioService', () => {
     });
 
     it('creates no new element when preloading an effect while it is playing, and plays the same element again', async () => {
-      await service.playSoundEffect('/audio/Win 3.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/Win 3.mp3');
 
       service.preloadSoundEffect('/audio/Win 3.mp3');
       await service.playSoundEffect('/audio/Win 3.mp3');
@@ -503,8 +505,7 @@ describe('AudioService', () => {
     });
 
     it('restarts from the beginning when played again', async () => {
-      await service.playSoundEffect('/audio/Win 3.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/Win 3.mp3');
       // An ended element stays at the end of the sound.
       effect.currentTime = 1.2;
       effect.dispatchEvent(new Event('ended'));
@@ -520,8 +521,7 @@ describe('AudioService', () => {
     });
 
     it('uses the volume requested for this play when played again', async () => {
-      await service.playSoundEffect('/audio/Win 3.mp3', 0.8);
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/Win 3.mp3', 0.8);
       effect.dispatchEvent(new Event('ended'));
 
       await service.playSoundEffect('/audio/Win 3.mp3', 0.3);
@@ -530,8 +530,7 @@ describe('AudioService', () => {
     });
 
     it('plays the same element again, without overlapping, when replayed before it has ended', async () => {
-      await service.playSoundEffect('/audio/App Negative.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/App Negative.mp3');
 
       await service.playSoundEffect('/audio/App Negative.mp3');
 
@@ -541,8 +540,7 @@ describe('AudioService', () => {
     });
 
     it('restarts from the beginning, at the volume requested for this play, when replayed before it has ended', async () => {
-      await service.playSoundEffect('/audio/App Negative.mp3', 0.8);
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/App Negative.mp3', 0.8);
       // Still playing: the element is part-way through the sound.
       effect.currentTime = 0.6;
       let startedAt: number | undefined;
@@ -560,8 +558,7 @@ describe('AudioService', () => {
     });
 
     it('removes the element when it fails to load', async () => {
-      await service.playSoundEffect('/audio/Win 3.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/Win 3.mp3');
 
       effect.dispatchEvent(new Event('error'));
 
@@ -570,8 +567,7 @@ describe('AudioService', () => {
     });
 
     it('creates a new element when played again after a replay failed to load', async () => {
-      await service.playSoundEffect('/audio/Win 3.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/Win 3.mp3');
       effect.dispatchEvent(new Event('ended'));
       await service.playSoundEffect('/audio/Win 3.mp3');
       effect.dispatchEvent(new Event('error'));
@@ -584,8 +580,7 @@ describe('AudioService', () => {
     });
 
     it('logs a load error once when the element has been played several times', async () => {
-      await service.playSoundEffect('/audio/Win 3.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/Win 3.mp3');
       effect.dispatchEvent(new Event('ended'));
       await service.playSoundEffect('/audio/Win 3.mp3');
       effect.dispatchEvent(new Event('ended'));
@@ -601,8 +596,7 @@ describe('AudioService', () => {
     });
 
     it('logs the error and creates a new element when played again after a replay before it had ended failed to play', async () => {
-      await service.playSoundEffect('/audio/App Negative.mp3');
-      const effect = createdAudio[0];
+      const effect = await playEffect('/audio/App Negative.mp3');
       const error = notAllowedError();
       effect.play.and.rejectWith(error);
       // Whether this replay's promise rejects is not what this test is about.
