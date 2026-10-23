@@ -466,6 +466,16 @@ describe('AudioService', () => {
       expect(startedAt).toBe(0);
     });
 
+    it('uses the volume requested for this play when played again', async () => {
+      await service.playSoundEffect('/audio/Win 3.mp3', 0.8);
+      const effect = createdAudio[0];
+      effect.dispatchEvent(new Event('ended'));
+
+      await service.playSoundEffect('/audio/Win 3.mp3', 0.3);
+
+      expect(effect.volume).toBe(0.3);
+    });
+
     it('removes the element when it fails to load', async () => {
       await service.playSoundEffect('/audio/Win 3.mp3');
       const effect = createdAudio[0];
